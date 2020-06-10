@@ -11,6 +11,7 @@
     <groupId>com.peter</groupId>
     <artifactId>mysql-demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>mysql-demo</name>
     <description>Demo project for Spring Boot</description>
 
