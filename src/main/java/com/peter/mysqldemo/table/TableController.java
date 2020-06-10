@@ -13,10 +13,29 @@ public class TableController {
         this.tableService = tableService;
     }
 
+    /**
+     * 기본적인 조회 쿼리를 만들어줍니다.
+     * @param tableSchema
+     * @param tableName
+     * @return
+     */
     @GetMapping("/selectQuery")
-    public String hello(@RequestParam(value="tableSchema", required=false) String tableSchema
+    public String selectQuery(@RequestParam(value="tableSchema", required=false) String tableSchema
                       , @RequestParam(value="tableName", required=false) String tableName){
         System.out.println("tableSchema : " + tableSchema + ", tableName : " + tableName);
-        return this.tableService.hello(tableSchema, tableName);
+        return this.tableService.selectQuery(tableSchema, tableName);
+    }
+
+    /**
+     * 기본적인 INSERT 쿼리를 만들어줍니다. (PreparedStatement 형식)
+     * @param tableSchema
+     * @param tableName
+     * @return
+     */
+    @GetMapping("/insertQuery")
+    public String insertQuery(@RequestParam(value="tableSchema", required=false) String tableSchema
+            , @RequestParam(value="tableName", required=false) String tableName){
+        System.out.println("tableSchema : " + tableSchema + ", tableName : " + tableName);
+        return this.tableService.insertQuery(tableSchema, tableName);
     }
 }
