@@ -109,4 +109,41 @@ public class TableService {
 
         return sb.toString();
     }
+
+    /**
+     * 기본적인 UPDATE 쿼리를 만들어줍니다.
+     * @param tableSchema
+     * @param tableName
+     * @return
+     */
+    public String updateQuery(String tableSchema, String tableName) {
+        StringBuilder sb = new StringBuilder();
+        try(Connection connection = dataSource.getConnection()) {
+            String sql = "select COLUMN_NAME AS colName\n" +
+                    "      ,COLUMN_TYPE AS colType\n" +
+                    "      ,COLUMN_COMMENT AS colCmnt\n" +
+                    "  from INFORMATION_SCHEMA.columns\n" +
+                    " where table_schema='" + tableSchema + "'\n" +
+                    "   and table_name='"+ tableName + "'\n" +
+                    " order by ordinal_position";
+
+            Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            sb.append("UPDATE ").append(tableSchema).append(".").append(tableName).append("\nSET\n   ");
+
+            while(resultSet.next()) {
+                sb.append(resultSet.getString("colName")).append(" = '${}'  -- ").append(resultSet.getString("colCmnt")).append("\n");
+                if(!resultSet.isLast()){
+                    sb.append(" , ");
+                }
+            }
+            sb.append("WHERE id = ${id}");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return sb.toString();
+    }
 }

@@ -38,4 +38,17 @@ public class TableController {
         System.out.println("tableSchema : " + tableSchema + ", tableName : " + tableName);
         return this.tableService.insertQuery(tableSchema, tableName);
     }
+
+    /**
+     * 기본적인 UPDATE 쿼리를 만들어줍니다.
+     * @param tableSchema
+     * @param tableName
+     * @return
+     */
+    @GetMapping("updateQuery")
+    public String updateQuery(@RequestParam(value="tableSchema", required=false) String tableSchema
+            , @RequestParam(value="tableName", required=false) String tableName){
+        System.out.println("tableSchema : " + tableSchema + ", tableName : " + tableName);
+        return this.tableService.updateQuery(tableSchema, tableName);
+    }
 }
