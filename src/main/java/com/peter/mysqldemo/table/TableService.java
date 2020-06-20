@@ -41,7 +41,7 @@ public class TableService {
             int maxLength = 0; // 가장 긴 컬럼의 길이 => 해당 길이에 맞춰서 right padding
             while(resultSet.next()) {
                 String colName = resultSet.getString("colName");
-                maxLength = maxLength < colName.length() ? colName.length() : maxLength;
+                maxLength = Math.max(maxLength, colName.length());
             }
             resultSet.beforeFirst();
 
@@ -55,7 +55,7 @@ public class TableService {
                     sb.append(",");
                 }
             }
-            sb.append("FROM ").append(tableSchema).append(".").append(tableName).append(";");
+            sb.append("FROM ").append(tableSchema).append(".").append(tableName).append("\nWHERE id = ?;");
             System.out.println(sb.toString());
 
         } catch (SQLException e) {
@@ -85,12 +85,26 @@ public class TableService {
             Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ResultSet resultSet = statement.executeQuery(sql);
 
-            sb.append("INSERT INTO ").append(tableSchema).append(".").append(tableName).append(" ( ");
+            int maxLength = 0; // 가장 긴 컬럼의 길이 => 해당 길이에 맞춰서 right padding
             while(resultSet.next()) {
-                sb.append(resultSet.getString("colName"));
+                String colName = resultSet.getString("colName");
+                maxLength = Math.max(maxLength, colName.length());
+            }
+            resultSet.beforeFirst();
+
+            sb.append("INSERT INTO ").append(tableSchema).append(".").append(tableName).append(" (\n ");
+            while(resultSet.next()) {
+                sb.append(String.format("%-" + maxLength + "s", resultSet.getString("colName")));
+                sb.append("  -- ");
+                sb.append(resultSet.getString("colCmnt"));
+                sb.append("\n");
                 if(!resultSet.isLast()){
-                    sb.append(" , ");
+                    sb.append(",");
                 }
+//                sb.append(resultSet.getString("colName"));
+//                if(!resultSet.isLast()){
+//                    sb.append(" , ");
+//                }
                 cnt++;
             }
             sb.append(") VALUES (");
@@ -130,15 +144,22 @@ public class TableService {
             Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ResultSet resultSet = statement.executeQuery(sql);
 
+            int maxLength = 0; // 가장 긴 컬럼의 길이 => 해당 길이에 맞춰서 right padding
+            while(resultSet.next()) {
+                String colName = resultSet.getString("colName");
+                maxLength = Math.max(maxLength, colName.length());
+            }
+            resultSet.beforeFirst();
+
             sb.append("UPDATE ").append(tableSchema).append(".").append(tableName).append("\nSET\n   ");
 
             while(resultSet.next()) {
-                sb.append(resultSet.getString("colName")).append(" = '${}'  -- ").append(resultSet.getString("colCmnt")).append("\n");
+                sb.append(String.format("%-" + maxLength + "s", resultSet.getString("colName"))).append(" = ?  -- ").append(resultSet.getString("colCmnt")).append("\n");
                 if(!resultSet.isLast()){
                     sb.append(" , ");
                 }
             }
-            sb.append("WHERE id = ${id}");
+            sb.append("WHERE id = ? ;");
 
         } catch (SQLException e) {
             e.printStackTrace();
